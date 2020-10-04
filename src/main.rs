@@ -1,4 +1,9 @@
-// use websocket::header::{Authorization, Bearer, Headers};
+// TODO
+// - [  ] Get notebook URL from commandline
+// - [  ] Get token from commandline / env var
+// - [  ] Send actually useful JSON struct to server
+// - [  ] Find way to send and receive messages together?! Does this need async?
+// - [  ] Echo stdin / stdout properly
 #[macro_use] extern crate hyper;
 
 use hyper::header::Headers;
@@ -12,6 +17,8 @@ use websocket::{ClientBuilder, Message};
 // easier? But then again, this shit is super statically typed so string keys are
 // not acceptable?
 header! { (AuthorizationToken, "Authorization") => [String] }
+
+
 
 fn main() {
     let url = Url::parse("ws://127.0.0.1:8888/terminals/websocket/1").unwrap();
