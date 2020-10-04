@@ -19,6 +19,7 @@
 use hyper::header::Headers;
 use websocket::url::Url;
 use websocket::{ClientBuilder, Message};
+use console::Term;
 
 // Notebook expects the value of Authorization header to be 'token {token}',
 // while the most common form is actually 'Bearer {token}'. websocket's default
@@ -40,10 +41,17 @@ fn main() {
         .connect_insecure()
         .unwrap();
 
-    let input = array!["stdin", "\ntouch hi\n"];
+    // FIXME: Why is this Term::stdout()?!
+    let terminal = Term::stdout();
 
-    match client.send_message(&Message::text(input.dump())) {
-        Ok(_) => {}
-        Err(error) => panic!("Problem opening the file: {:?}", error),
+    loop {
+        // FIXME: Does this handle control characters ok?
+        let stdin = terminal.read_char().unwrap().to_string();
+        let input = array!["stdin", stdin];
+
+        match client.send_message(&Message::text(input.dump())) {
+            Ok(_) => {}
+            Err(error) => panic!("Problem opening the file: {:?}", error),
+        }
     }
 }
