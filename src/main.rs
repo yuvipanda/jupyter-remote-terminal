@@ -6,6 +6,16 @@
 // - [  ] Echo stdin / stdout properly
 #[macro_use] extern crate hyper;
 
+// Terminado's structure is kinda strange, and not very objecty
+// Each message is an array, where the first element is the type of message
+// Currently, the only message types seem to be:
+// 1. 'stdin' - followed by string that represents data to be sent to stdin
+// 2. 'set_size' - Followed by row, col to set terminal size to
+// 3. 'stdout' - Followed by string that is data for stdout
+//
+// the json crate with its array! macro is much easier
+#[macro_use] extern crate json;
+
 use hyper::header::Headers;
 use websocket::url::Url;
 use websocket::{ClientBuilder, Message};
@@ -17,8 +27,6 @@ use websocket::{ClientBuilder, Message};
 // easier? But then again, this shit is super statically typed so string keys are
 // not acceptable?
 header! { (AuthorizationToken, "Authorization") => [String] }
-
-
 
 fn main() {
     let url = Url::parse("ws://127.0.0.1:8888/terminals/websocket/1").unwrap();
@@ -32,7 +40,9 @@ fn main() {
         .connect_insecure()
         .unwrap();
 
-    match client.send_message(&Message::text("hello")) {
+    let input = array!["stdin", "\ntouch hi\n"];
+
+    match client.send_message(&Message::text(input.dump())) {
         Ok(_) => {}
         Err(error) => panic!("Problem opening the file: {:?}", error),
     }
